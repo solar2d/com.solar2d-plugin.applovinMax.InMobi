@@ -4,7 +4,7 @@ local metadata =
 	{
 		format = 'staticLibrary',
 		staticLibs = {  },
-		frameworks = { "AppLovinMediationInMobiAdapter", "HyprMX" },
+		frameworks = { "AppLovinMediationInMobiAdapter", "InMobiSDK" },
 		frameworksOptional = {},
 	},
 }
