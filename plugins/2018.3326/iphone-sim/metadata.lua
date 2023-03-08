@@ -3,8 +3,12 @@ local metadata =
 	plugin =
 	{
 		format = 'staticLibrary',
-		staticLibs = { "InMobiAdapter" },
-		frameworks = { "InMobiSDK" },
+
+		-- This is the name without the 'lib' prefix.
+		-- In this case, the static library is called: libSTATIC_LIB_NAME.a
+		staticLibs = { "c++", "sqlite3", "z", "objc", "InMobiSDK", "InMobiAdapter"},
+
+		frameworks = {},
 		frameworksOptional = {},
 	},
 }
