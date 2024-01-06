@@ -3,7 +3,7 @@ repositories {
  mavenCentral()
 }
 dependencies {
-	implementation 'com.applovin.mediation:inmobi-adapter:10.5.8.2'
+	implementation 'com.applovin.mediation:inmobi-adapter:10.6.2.0'
 	implementation 'com.squareup.picasso:picasso:2.71828'
   implementation 'androidx.recyclerview:recyclerview:1.1.0'
 }
