@@ -2,17 +2,21 @@
 // swift-compiler-version: Apple Swift version 6.0 effective-5.10 (swiftlang-6.0.0.9.10 clang-1600.0.26.2)
 // swift-module-flags: -target x86_64-apple-ios12.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-bare-slash-regex -module-name InMobiSDK
 // swift-module-flags-ignorable: -no-verify-emitted-module-interface
+import AVFoundation
 import AdSupport
 import AppTrackingTransparency
 import SystemConfiguration.CaptiveNetwork
 import CommonCrypto
 import Compression
+import CoreGraphics
 import CoreLocation
 import CoreTelephony
 import CryptoKit
+import Darwin
 import Foundation
 @_exported import InMobiSDK
 import MetricKit
+import ObjectiveC
 import InMobiSDK.Private
 import StoreKit.SKAdImpression
 import SQLite3
@@ -24,6 +28,7 @@ import WebKit
 import _Concurrency
 import _StringProcessing
 import _SwiftConcurrencyShims
+import ObjectiveC.runtime
 @_hasMissingDesignatedInitializers @objc public class IMBannerPreloadManager : ObjectiveC.NSObject {
   @objc public func preload()
   @objc public func load()
@@ -86,8 +91,10 @@ import _SwiftConcurrencyShims
   @objc public var rendering: InMobiSDK.RenderingConfig
   @objc public var silenceDetection: InMobiSDK.SilenceDetectionConfig
   @objc public var mraid: InMobiSDK.MraidConfig
+  @objc public var native: InMobiSDK.NativeConfig
   @objc public var jsDownloader: InMobiSDK.JSDownloaderConfig
   @objc public var mraid3: InMobiSDK.Mraid3Config
+  @objc public var pingV2: InMobiSDK.PingV2Config
   @objc dynamic public func getAdServerUrl() -> Swift.String
   @objc public func getWebviewConfig(for type: Swift.String) -> InMobiSDK.WebViewModeConfig
   @objc override dynamic public init()
@@ -141,8 +148,6 @@ import _SwiftConcurrencyShims
   @objc public var omidConfig: InMobiSDK.OmidConfig
   @objc public var web: InMobiSDK.WebImpressionConfig
   @objc public var video: InMobiSDK.VideoImpressionConfig
-  @objc public var impressionMinTimeViewed: Swift.Int
-  @objc public var impressionMinPercentageViewed: Swift.Int
   @objc override dynamic public init()
   @objc deinit
   public func encode(to encoder: any Swift.Encoder) throws
@@ -265,6 +270,7 @@ import _SwiftConcurrencyShims
   @objc public var vastMaxAssetSize: Swift.Int
   @objc public var bitRate: InMobiSDK.BitRateConfig
   @objc public var allowedContentType: [Swift.String]
+  @objc public var allowedCompanionType: [Swift.String]
   @objc override dynamic public init()
   @objc deinit
   public func encode(to encoder: any Swift.Encoder) throws
@@ -273,6 +279,7 @@ import _SwiftConcurrencyShims
 @_inheritsConvenienceInitializers @objc public class BitRateConfig : ObjectiveC.NSObject {
   @objc public var headerTimeout: Swift.Int
   @objc public var bitrate_mandatory: Swift.Bool
+  @objc public var useBitRate: Swift.Bool
   @objc override dynamic public init()
   @objc deinit
   public func encode(to encoder: any Swift.Encoder) throws
@@ -329,6 +336,7 @@ import _SwiftConcurrencyShims
   @objc public var picWidth: Swift.Int
   @objc public var enableSDKAVAudioSession: Swift.Bool
   @objc public var webviewModeDictionary: InMobiSDK.WebViewModeDictionaryConfig
+  @objc public var gestureConfig: InMobiSDK.GestureConfig
   @objc public func enablePubMuteControl_() -> Swift.Bool
   @objc override dynamic public init()
   @objc deinit
@@ -390,6 +398,7 @@ import _SwiftConcurrencyShims
   @objc public var retryInterval: Swift.Int
   @objc public var ios_url: Swift.String
   @objc public var maxRetries: Swift.Int
+  @objc public var injectMainFrameOnly: Swift.Bool
   @objc override dynamic public init()
   @objc deinit
   public func encode(to encoder: any Swift.Encoder) throws
@@ -403,6 +412,62 @@ import _SwiftConcurrencyShims
   @objc deinit
   public func encode(to encoder: any Swift.Encoder) throws
   required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class PingV2Config : ObjectiveC.NSObject {
+  @objc public var enabled: Swift.Bool
+  @objc public var maxEntries: Swift.Int
+  @objc public var maxBatchSize: InMobiSDK.PingV2SubConfig
+  @objc public var expiry: InMobiSDK.PingV2SubConfig
+  @objc public var retryConfig: InMobiSDK.PingV2RetryConfig
+  @objc public var interval: InMobiSDK.PingV2SubConfig
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_hasMissingDesignatedInitializers @objc public class PingV2SubConfig : ObjectiveC.NSObject {
+  @objc public var high: Foundation.TimeInterval
+  @objc public var normal: Foundation.TimeInterval
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class PingV2RetryConfig : ObjectiveC.NSObject {
+  @objc public var high: InMobiSDK.PingV2RetrySubConfig
+  @objc public var normal: InMobiSDK.PingV2RetrySubConfig
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_hasMissingDesignatedInitializers @objc public class PingV2RetrySubConfig : ObjectiveC.NSObject {
+  @objc public var maxRetries: Swift.Int
+  @objc public var retryInterval: Foundation.TimeInterval
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class GestureConfig : ObjectiveC.NSObject {
+  @objc public var isHTEnable: Swift.Bool
+  @objc public var htThrottlingTime: Swift.Double
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+public enum IMNewPingPriority : Swift.String, Swift.Codable {
+  case high
+  case normal
+  public init?(rawValue: Swift.String)
+  public typealias RawValue = Swift.String
+  public var rawValue: Swift.String {
+    get
+  }
+}
+@objc public protocol PingSource {
+  @objc var uuid: Foundation.UUID { get }
+  @objc func notifyPingSentCompletion(ping: InMobiSDK.Ping, status: Swift.Int, message: Swift.String?)
+  @objc func getAdDataJSON() -> [Swift.String : Swift.AnyHashable]?
 }
 @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc @_Concurrency.MainActor @preconcurrency public class IMMovableView : UIKit.UIView {
   @objc @_Concurrency.MainActor @preconcurrency public var isMovable: Swift.Bool
@@ -676,6 +741,7 @@ extension InMobiSDK.IMSdk {
   @objc public var maxEventsToPersist: Swift.Int
   @objc public var lpConfig: InMobiSDK.LPConfig
   @objc public var samplingFactor: Swift.Double
+  @objc public var pingSamplingFactor: Swift.Double
   @objc public var disableAllGeneralEvents: Swift.Bool
   @objc public var includeIds: InMobiSDK.IMIncludeIds
   @objc public var databaseConfig: InMobiSDK.DatabaseConfig
@@ -752,6 +818,7 @@ extension InMobiSDK.IMSdk {
 }
 @_inheritsConvenienceInitializers @objc public class LPConfig : ObjectiveC.NSObject {
   @objc public var maxFunnelsToTrackPerAd: Swift.Int
+  @objc public var enableOnLpLifeCycleEvent: Swift.Bool
   @objc override dynamic public init()
   @objc deinit
   public func encode(to encoder: any Swift.Encoder) throws
@@ -776,6 +843,37 @@ extension InMobiSDK.IMSdk {
 @objc public protocol IMUnifiedIdDelegate {
   @objc func onFetchCompleted(_ response: [Swift.String : Any]?, error: Foundation.NSError?)
 }
+@objc @_inheritsConvenienceInitializers public class IMSDKSwiftCommonUtil : ObjectiveC.NSObject {
+  @objc public static func applicationDisplayName() -> Swift.String
+  @objc override dynamic public init()
+  @objc deinit
+}
+public enum IMAdvanceDataState : Swift.Equatable {
+  case idle
+  case ready
+  case error(Swift.String)
+  public static func == (a: InMobiSDK.IMAdvanceDataState, b: InMobiSDK.IMAdvanceDataState) -> Swift.Bool
+}
+final public class IMAdvanceDataCollector {
+  public static let shared: InMobiSDK.IMAdvanceDataCollector
+  public static let topicMaxRevenueEvents: Swift.String
+  final public var state: InMobiSDK.IMAdvanceDataState {
+    get
+  }
+  final public var onRevenueEvent: (([Swift.String : Any]?) -> Swift.Void)?
+  final public var topicFilter: Swift.Set<Swift.String> {
+    get
+  }
+  public init()
+  @objc deinit
+}
+extension InMobiSDK.IMAdvanceDataCollector {
+  final public func setTopicFilter(_ topics: Swift.Set<Swift.String>)
+  @discardableResult
+  final public func start() -> InMobiSDK.IMAdvanceDataState
+  @discardableResult
+  final public func stop() -> InMobiSDK.IMAdvanceDataState
+}
 @objc public class IMNative : ObjectiveC.NSObject {
   @objc public var placementId: Swift.Int64 {
     @objc get
@@ -794,16 +892,13 @@ extension InMobiSDK.IMSdk {
     @objc get
     @objc set
   }
-  @objc public var customAdContent: Swift.String? {
-    @objc get
-  }
   @objc public var adTitle: Swift.String? {
     @objc get
   }
   @objc public var adDescription: Swift.String? {
     @objc get
   }
-  @objc public var adIcon: UIKit.UIImage? {
+  @objc public var adIcon: InMobiSDK.IMNativeImage? {
     @objc get
   }
   @objc public var adCtaText: Swift.String? {
@@ -812,24 +907,25 @@ extension InMobiSDK.IMSdk {
   @objc public var adRating: Swift.String? {
     @objc get
   }
-  @objc public var adLandingPageUrl: Foundation.URL? {
+  @objc public var advertiserName: Swift.String? {
     @objc get
   }
-  @objc public var isAppDownload: Swift.Bool {
-    @objc get
-  }
-  @objc public var creativeId: Swift.String? {
+  @objc public var adChoice: UIKit.UIImageView? {
     @objc get
   }
   @objc convenience public init(placementId: Swift.Int64)
   @objc public init(placementId: Swift.Int64, delegate: (any InMobiSDK.IMNativeDelegate)?)
-  @objc public func primaryView(ofWidth width: CoreFoundation.CGFloat) -> UIKit.UIView?
   @objc public func load()
   @objc public func load(_ response: Foundation.Data)
+  @objc public func registerViewForTracking(_ view: InMobiSDK.IMNativeViewData)
   @objc public func isReady() -> Swift.Bool
-  @objc public func reportAdClickAndOpenLandingPage()
-  @objc public func recyclePrimaryView()
+  @objc public func getCustomAdContent() -> [Swift.String : Any]?
+  @objc public func getMediaView() -> UIKit.UIView?
+  @objc public func isVideoAd() -> Swift.Bool
   @objc public func getAdMetaInfo() -> [Swift.String : Any]?
+  @objc public var creativeId: Swift.String? {
+    @objc get
+  }
   @objc deinit
 }
 @_inheritsConvenienceInitializers @objc public class IMPrivacyCompliance : ObjectiveC.NSObject {
@@ -912,6 +1008,7 @@ extension InMobiSDK.IMAudio {
   @objc public var purchases: InMobiSDK.PurchasesConfig
   @objc public var publisher: InMobiSDK.PublisherConfig
   @objc public var experiments: InMobiSDK.ExperimentsConfig
+  @objc public var bts: InMobiSDK.BTSConfig
   @objc override dynamic public init()
   @objc deinit
   public func encode(to encoder: any Swift.Encoder) throws
@@ -1013,6 +1110,29 @@ extension InMobiSDK.IMAudio {
   @objc public var enableMCO: Swift.Bool
   @objc public var enableHB: Swift.Bool
   @objc public var payloadSize: Swift.Int
+  @objc public var obj: InMobiSDK.IMPPSSignalConfig
+  @objc public var auto: InMobiSDK.IMPPSSignalConfig
+  @objc public var direct: InMobiSDK.IMPPSSignalConfig
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class IMPPSSignalConfig : ObjectiveC.NSObject {
+  @objc public var enabled: Swift.Bool
+  @objc public var expiry: Swift.Int
+  @objc public var count: Swift.Int
+  @objc public var precision: Swift.Int
+  @objc public var strLen: Swift.Int
+  @objc public var depth: InMobiSDK.IMDepthPPS
+  @objc public var allowedKeys: InMobiSDK.AnyDictionary?
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class IMDepthPPS : ObjectiveC.NSObject {
+  @objc public var enabled: Swift.Bool
   @objc override dynamic public init()
   @objc deinit
   public func encode(to encoder: any Swift.Encoder) throws
@@ -1020,6 +1140,15 @@ extension InMobiSDK.IMAudio {
 }
 @_inheritsConvenienceInitializers @objc public class ExperimentsConfig : ObjectiveC.NSObject {
   @objc public var networkRevamp: Swift.Bool
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class BTSConfig : ObjectiveC.NSObject {
+  @objc public var enabled: Swift.Bool
+  @objc public var expiry: Swift.Double
+  @objc public var maxEntries: Swift.Int
   @objc override dynamic public init()
   @objc deinit
   public func encode(to encoder: any Swift.Encoder) throws
@@ -1055,6 +1184,14 @@ extension InMobiSDK.IMAudio {
 @objc public protocol IMLogging {
   @objc optional func log(message: Swift.String, tag: Swift.String, logLevel: InMobiSDK.IMRemoteLogLevel)
   @objc optional func saveAndSync()
+}
+@_inheritsConvenienceInitializers @objc public class PingCreator : ObjectiveC.NSObject, Swift.Codable {
+  @objc override dynamic public init()
+  required public init(from decoder: any Swift.Decoder) throws
+  @objc public static func getPings(from dictionary: [Swift.String : Any], source: (any InMobiSDK.PingSource)?, isTelemetryEnabledForPings: Swift.Bool) -> [InMobiSDK.Ping]
+  @objc public static func pings(from jsonData: Foundation.Data, source: (any InMobiSDK.PingSource)?, isTelemetryEnabledForPings: Swift.Bool) -> [InMobiSDK.Ping]
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
 }
 public enum JSDownloaderError : Foundation.LocalizedError {
   case invalidURL(Swift.String)
@@ -1093,7 +1230,149 @@ extension InMobiSDK.AnyDictionary : Swift.Encodable {
   @objc public func getBid() -> Swift.Double
   @objc deinit
 }
+@objc @_hasMissingDesignatedInitializers @objcMembers public class Ping : ObjectiveC.NSObject, Swift.Codable {
+  @objc final public let templateUniqueId: Swift.String
+  @objc final public let id: Foundation.UUID
+  @objc public var retryCount: Swift.Int
+  required public init(from decoder: any Swift.Decoder) throws
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class NativeConfig : ObjectiveC.NSObject {
+  @objc public var adChoiceConfig: InMobiSDK.AdChoiceConfig
+  @objc public var iconConfig: InMobiSDK.IconConfig
+  @objc public var videoPlayerConfig: InMobiSDK.VideoPlayerConfig
+  @objc public var assetConfig: InMobiSDK.NativeAssetConfig
+  @objc public var viewabilityConfig: InMobiSDK.NativeViewabilityConfig
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class AdChoiceConfig : ObjectiveC.NSObject {
+  @objc public var width: Swift.Int
+  @objc public var height: Swift.Int
+  @objc public var url: Swift.String
+  @objc public var landingPage: Swift.String
+  @objc public var openMode: Swift.String
+  @objc public var loadTimeout: Swift.Int
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class IconConfig : ObjectiveC.NSObject {
+  @objc public var width: Swift.Int
+  @objc public var height: Swift.Int
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class VideoPlayerProgressConfig : ObjectiveC.NSObject {
+  @objc public var showProgress: Swift.Bool
+  @objc public var foregroundColor: [Swift.Int]
+  @objc public var backgroundColor: [Swift.Int]
+  @objc public var height: Swift.Int
+  @objc public var progressPolling: Swift.Int
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class VideoPlayerAudioConfig : ObjectiveC.NSObject {
+  @objc public var startMuted: Swift.Bool
+  @objc public var muteIconWidth: Swift.Int
+  @objc public var muteIconHeight: Swift.Int
+  @objc public var muteIconMargin: [Swift.Int]
+  @objc public var muteIconPosition: InMobiSDK.ConfigMuteIconPosition
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class VideoPlayerViewabilityConfig : ObjectiveC.NSObject {
+  @objc public var minPercentageVisible: Swift.Int
+  @objc public var pollingInterval: Swift.Int
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class VideoPlayerConfig : ObjectiveC.NSObject {
+  @objc public var loopVideoOnComplete: Swift.Bool
+  @objc public var progressConfig: InMobiSDK.VideoPlayerProgressConfig
+  @objc public var audioConfig: InMobiSDK.VideoPlayerAudioConfig
+  @objc public var viewability: InMobiSDK.VideoPlayerViewabilityConfig
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class NativeAssetConfig : ObjectiveC.NSObject {
+  @objc public var maxImageSize: Swift.Int64
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class ImpressionConfig : ObjectiveC.NSObject {
+  @objc public var impressionType: Swift.Int
+  @objc public var minPercentageViewed: Swift.Int
+  @objc public var minTimeViewed: Swift.Int
+  @objc public var videoMinTimeViewed: Swift.Int
+  @objc public var pollInterval: Swift.Int
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class MRC50Config : ObjectiveC.NSObject {
+  @objc public var minTimeViewed: Swift.Int
+  @objc public var videoMinTimeViewed: Swift.Int
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class DimensionConfig : ObjectiveC.NSObject {
+  @objc public var dimensions: [Swift.Int]
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc public class NativeViewabilityConfig : ObjectiveC.NSObject {
+  @objc public var impressionConfig: InMobiSDK.ImpressionConfig
+  @objc public var mrc50Config: InMobiSDK.MRC50Config
+  @objc public var parentMinDimension: InMobiSDK.DimensionConfig
+  @objc public var iconMinDimension: InMobiSDK.DimensionConfig
+  @objc public var mediaMinDimension: InMobiSDK.DimensionConfig
+  @objc override dynamic public init()
+  @objc deinit
+  public func encode(to encoder: any Swift.Encoder) throws
+  required public init(from decoder: any Swift.Decoder) throws
+}
+@objc public enum ConfigMuteIconPosition : Swift.Int, Swift.Codable {
+  case topLeft = 0
+  case topRight = 1
+  case bottomLeft = 2
+  case bottomRight = 3
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
 #warning("Long Term: IMOMImpressionType may need to be declared in IMCommonUtils")
+@_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc public class PingManager : ObjectiveC.NSObject {
+  @objc public static let shared: InMobiSDK.PingManager
+  @objc public var isTelemetryEnabled: Swift.Bool
+  @objc deinit
+  @objc public func removeRenderViewForUuid(_ uuid: Foundation.UUID?)
+  @objc public func process(pings: [InMobiSDK.Ping], source: any InMobiSDK.PingSource)
+  @objc public func processPending(onlyHighPriority: Swift.Bool = false)
+}
 @_inheritsConvenienceInitializers @objc public class CrashConfig : InMobiSDK.IMConfigBase {
   @objc override public func getType() -> Swift.String
   @objc override public func toDictionary() -> [Swift.String : Any]?
@@ -1194,6 +1473,54 @@ extension InMobiSDK.AnyDictionary : Swift.Encodable {
   @objc public func cancel()
   @objc deinit
 }
+@_hasMissingDesignatedInitializers @objc public class IMNativeViewData : ObjectiveC.NSObject {
+  weak public var parentView: UIKit.UIView? {
+    get
+  }
+  weak public var titleView: UIKit.UIView? {
+    get
+  }
+  weak public var descriptionView: UIKit.UIView? {
+    get
+  }
+  weak public var ctaView: UIKit.UIView? {
+    get
+  }
+  weak public var iconView: UIKit.UIImageView? {
+    get
+  }
+  weak public var ratingView: UIKit.UIView? {
+    get
+  }
+  weak public var advertiserView: UIKit.UIView? {
+    get
+  }
+  final public let extraViews: [UIKit.UIView]
+  @objc(IMNativeViewDataBuilder) @objcMembers public class Builder : ObjectiveC.NSObject {
+    @objc public init(parentView: UIKit.UIView)
+    @objc @discardableResult
+    public func setTitleView(_ titleView: UIKit.UIView) -> InMobiSDK.IMNativeViewData.Builder
+    @objc @discardableResult
+    public func setDescriptionView(_ descriptionView: UIKit.UIView) -> InMobiSDK.IMNativeViewData.Builder
+    @objc @discardableResult
+    public func setCTAView(_ ctaView: UIKit.UIView) -> InMobiSDK.IMNativeViewData.Builder
+    @objc @discardableResult
+    public func setIconView(_ iconView: UIKit.UIImageView) -> InMobiSDK.IMNativeViewData.Builder
+    @objc @discardableResult
+    public func setRatingView(_ ratingView: UIKit.UIView) -> InMobiSDK.IMNativeViewData.Builder
+    @objc @discardableResult
+    public func setAdvertiserView(_ advertiserView: UIKit.UIView) -> InMobiSDK.IMNativeViewData.Builder
+    @objc @discardableResult
+    public func setExtraViews(_ extraViews: [UIKit.UIView]) -> InMobiSDK.IMNativeViewData.Builder
+    @objc public func build() -> InMobiSDK.IMNativeViewData
+    @objc deinit
+  }
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers @objc public class IMNativeImage : ObjectiveC.NSObject {
+  @objc final public let imageview: UIKit.UIImageView?
+  @objc deinit
+}
 @_inheritsConvenienceInitializers @objc public class ConfigProvider : ObjectiveC.NSObject {
   @objc dynamic public static var rootConfig: InMobiSDK.RootConfig {
     @objc get
@@ -1210,6 +1537,14 @@ extension InMobiSDK.AnyDictionary : Swift.Encodable {
   @objc dynamic public static var crashConfig: InMobiSDK.CrashConfig {
     @objc get
   }
+  @objc override dynamic public init()
+  @objc deinit
+}
+@objc @_inheritsConvenienceInitializers @objcMembers public class IMMraidConstants : ObjectiveC.NSObject {
+  @objc public static let COMMAND_LOAD_WEBVIEW: Swift.String
+  @objc public static let COMMAND_SHOW_WEBVIEW: Swift.String
+  @objc public static let COMMAND_DESTROY_WEBVIEW: Swift.String
+  @objc public static let COMMAND_SEND_MESSAGE: Swift.String
   @objc override dynamic public init()
   @objc deinit
 }
@@ -1273,6 +1608,23 @@ extension InMobiSDK.AnyDictionary : Swift.Encodable {
   @objc public init(waterMarkImageData: Foundation.Data)
   @objc deinit
 }
+public let playerErrorDomain: Swift.String
+public enum PlayerError : Swift.Error, Swift.CustomStringConvertible {
+  case failed
+  public var description: Swift.String {
+    get
+  }
+  public static func == (a: InMobiSDK.PlayerError, b: InMobiSDK.PlayerError) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+extension UIKit.UIView {
+  @_Concurrency.MainActor @preconcurrency public var isVisible: Swift.Bool {
+    get
+  }
+}
 #warning("Post Swift Migration: file not used yet")
 @objc public protocol IMNativeDelegate {
   @objc optional func nativeDidFinishLoading(_ native: InMobiSDK.IMNative)
@@ -1285,7 +1637,6 @@ extension InMobiSDK.AnyDictionary : Swift.Encodable {
   @objc optional func nativeAdImpressed(_ native: InMobiSDK.IMNative)
   @objc optional func native(_ native: InMobiSDK.IMNative, didInteractWithParams params: [Swift.String : Any]?)
   @objc optional func nativeDidFinishPlayingMedia(_ native: InMobiSDK.IMNative)
-  @objc optional func userDidSkipPlayingMediaFromNative(_ native: InMobiSDK.IMNative)
   @objc optional func native(_ native: InMobiSDK.IMNative, adAudioStateChanged audioStateMuted: Swift.Bool)
 }
 @objc @_inheritsConvenienceInitializers @objcMembers public class IMCommonConstants : ObjectiveC.NSObject {
@@ -1421,6 +1772,19 @@ extension InMobiSDK.MraidConfig : Swift.Encodable {}
 extension InMobiSDK.MraidConfig : Swift.Decodable {}
 extension InMobiSDK.Mraid3Config : Swift.Encodable {}
 extension InMobiSDK.Mraid3Config : Swift.Decodable {}
+extension InMobiSDK.PingV2Config : Swift.Encodable {}
+extension InMobiSDK.PingV2Config : Swift.Decodable {}
+extension InMobiSDK.PingV2SubConfig : Swift.Encodable {}
+extension InMobiSDK.PingV2SubConfig : Swift.Decodable {}
+extension InMobiSDK.PingV2RetryConfig : Swift.Encodable {}
+extension InMobiSDK.PingV2RetryConfig : Swift.Decodable {}
+extension InMobiSDK.PingV2RetrySubConfig : Swift.Encodable {}
+extension InMobiSDK.PingV2RetrySubConfig : Swift.Decodable {}
+extension InMobiSDK.GestureConfig : Swift.Encodable {}
+extension InMobiSDK.GestureConfig : Swift.Decodable {}
+extension InMobiSDK.IMNewPingPriority : Swift.Equatable {}
+extension InMobiSDK.IMNewPingPriority : Swift.Hashable {}
+extension InMobiSDK.IMNewPingPriority : Swift.RawRepresentable {}
 extension InMobiSDK.IMAudioStatus : Swift.Equatable {}
 extension InMobiSDK.IMAudioStatus : Swift.Hashable {}
 extension InMobiSDK.IMAudioStatus : Swift.RawRepresentable {}
@@ -1482,11 +1846,44 @@ extension InMobiSDK.PurchasesConfig : Swift.Encodable {}
 extension InMobiSDK.PurchasesConfig : Swift.Decodable {}
 extension InMobiSDK.PublisherConfig : Swift.Encodable {}
 extension InMobiSDK.PublisherConfig : Swift.Decodable {}
+extension InMobiSDK.IMPPSSignalConfig : Swift.Encodable {}
+extension InMobiSDK.IMPPSSignalConfig : Swift.Decodable {}
+extension InMobiSDK.IMDepthPPS : Swift.Encodable {}
+extension InMobiSDK.IMDepthPPS : Swift.Decodable {}
 extension InMobiSDK.ExperimentsConfig : Swift.Encodable {}
 extension InMobiSDK.ExperimentsConfig : Swift.Decodable {}
+extension InMobiSDK.BTSConfig : Swift.Encodable {}
+extension InMobiSDK.BTSConfig : Swift.Decodable {}
 extension InMobiSDK.IMRemoteLogLevel : Swift.Equatable {}
 extension InMobiSDK.IMRemoteLogLevel : Swift.Hashable {}
 extension InMobiSDK.IMRemoteLogLevel : Swift.RawRepresentable {}
+extension InMobiSDK.NativeConfig : Swift.Encodable {}
+extension InMobiSDK.NativeConfig : Swift.Decodable {}
+extension InMobiSDK.AdChoiceConfig : Swift.Encodable {}
+extension InMobiSDK.AdChoiceConfig : Swift.Decodable {}
+extension InMobiSDK.IconConfig : Swift.Encodable {}
+extension InMobiSDK.IconConfig : Swift.Decodable {}
+extension InMobiSDK.VideoPlayerProgressConfig : Swift.Encodable {}
+extension InMobiSDK.VideoPlayerProgressConfig : Swift.Decodable {}
+extension InMobiSDK.VideoPlayerAudioConfig : Swift.Encodable {}
+extension InMobiSDK.VideoPlayerAudioConfig : Swift.Decodable {}
+extension InMobiSDK.VideoPlayerViewabilityConfig : Swift.Encodable {}
+extension InMobiSDK.VideoPlayerViewabilityConfig : Swift.Decodable {}
+extension InMobiSDK.VideoPlayerConfig : Swift.Encodable {}
+extension InMobiSDK.VideoPlayerConfig : Swift.Decodable {}
+extension InMobiSDK.NativeAssetConfig : Swift.Encodable {}
+extension InMobiSDK.NativeAssetConfig : Swift.Decodable {}
+extension InMobiSDK.ImpressionConfig : Swift.Encodable {}
+extension InMobiSDK.ImpressionConfig : Swift.Decodable {}
+extension InMobiSDK.MRC50Config : Swift.Encodable {}
+extension InMobiSDK.MRC50Config : Swift.Decodable {}
+extension InMobiSDK.DimensionConfig : Swift.Encodable {}
+extension InMobiSDK.DimensionConfig : Swift.Decodable {}
+extension InMobiSDK.NativeViewabilityConfig : Swift.Encodable {}
+extension InMobiSDK.NativeViewabilityConfig : Swift.Decodable {}
+extension InMobiSDK.ConfigMuteIconPosition : Swift.Equatable {}
+extension InMobiSDK.ConfigMuteIconPosition : Swift.Hashable {}
+extension InMobiSDK.ConfigMuteIconPosition : Swift.RawRepresentable {}
 extension InMobiSDK.CrashConfig : Swift.Encodable {}
 extension InMobiSDK.CrashConfig : Swift.Decodable {}
 extension InMobiSDK.CrashNetworkTypeConfig : Swift.Encodable {}
@@ -1508,6 +1905,8 @@ extension InMobiSDK.IMIncludeIds : Swift.Encodable {}
 extension InMobiSDK.IMIncludeIds : Swift.Decodable {}
 extension InMobiSDK.IMGDPR : Swift.Encodable {}
 extension InMobiSDK.IMGDPR : Swift.Decodable {}
+extension InMobiSDK.PlayerError : Swift.Equatable {}
+extension InMobiSDK.PlayerError : Swift.Hashable {}
 extension InMobiSDK.IMSDKLogLevel : Swift.Equatable {}
 extension InMobiSDK.IMSDKLogLevel : Swift.Hashable {}
 extension InMobiSDK.IMSDKLogLevel : Swift.RawRepresentable {}
